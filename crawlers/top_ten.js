@@ -2,7 +2,7 @@
 * @Author: BuptStEve
 * @Date:   2016-01-21 15:21:31
 * @Last Modified by:   BuptStEve
-* @Last Modified time: 2016-03-07 14:45:21
+* @Last Modified time: 2016-03-07 15:04:12
 */
 
 'use strict';
@@ -271,7 +271,7 @@ function getTTOneArticleFirstPage(article, cookie, next) {
 }
 
 /**
- * @desc 根据 articleUrl 得到一页下各种回帖(可能有主贴).
+ * @desc 根据 articleUrl 得到非第一页下各种回帖.
  * @author BuptStEve
  * @param {Object}   article
  * @param {String}   cookie
