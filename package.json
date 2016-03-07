@@ -1,0 +1,29 @@
+{
+  "name": "byr-crawler",
+  "version": "0.0.0",
+  "description": "一个针对[北邮人论坛移动版](http://m.byr.cn)的爬虫,",
+  "main": "index.js",
+  "scripts": {
+    "cl": "conventional-changelog -p angular -i CHANGELOG.md -s",
+    "ncl": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0"
+  },
+  "keywords": [],
+  "author": "BuptStEve",
+  "license": "MIT",
+  "dependencies": {
+    "async": "^1.5.2",
+    "cheerio": "^0.19.0",
+    "lodash": "^4.0.1",
+    "mongoose": "^4.3.6",
+    "node-cron": "^1.1.1",
+    "superagent": "^1.7.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "devDependencies": {
+    "cz-conventional-changelog": "^1.1.5"
+  }
+}

@@ -1,0 +1,15 @@
+node_modules
+tmp
+.DS_Store
+
+sftp-config.json
+
+crawlers/board.js
+crawlers/err_article.js
+crawlers/section.js
+crawlers/article.js
+
+models/section.js
+models/board.js
+
+main.js
