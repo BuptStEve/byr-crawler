@@ -2,7 +2,7 @@
 * @Author: BuptStEve
 * @Date:   2016-01-18 10:59:48
 * @Last Modified by:   BuptStEve
-* @Last Modified time: 2016-02-04 14:17:39
+* @Last Modified time: 2016-03-07 15:09:49
 */
 
 'use strict';
@@ -10,7 +10,6 @@
 var mongoose = require('mongoose');
 var Schema   = mongoose.Schema;
 var article  = require('./article.js');
-var IdString = Schema.Types.String;
 
 // 4.回帖(comment)
 var CommentSchema = new Schema({
