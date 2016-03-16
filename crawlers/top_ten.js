@@ -2,7 +2,7 @@
 * @Author: BuptStEve
 * @Date:   2016-01-21 15:21:31
 * @Last Modified by:   BuptStEve
-* @Last Modified time: 2016-03-07 15:04:12
+* @Last Modified time: 2016-03-16 16:46:14
 */
 
 'use strict';
@@ -18,7 +18,7 @@ var Config       = require('../config.js'),
 
 var theTime = new Date(); //保证每次更新时间一致
 
-/*
+/**
  * @desc 主程序:读取首页的十大帖子,将其保存到数据库中
  * @author BuptStEve
  * @param {String}   cookie
@@ -29,7 +29,7 @@ function updateTopTen(cookie, next) {
 
   console.time('updateTopTen');
   async.waterfall([
-    /*
+    /**
      * @desc 1.获取首页的十大的链接
      * @author BuptStEve
      * @param {Callback} next
@@ -57,7 +57,7 @@ function updateTopTen(cookie, next) {
           next(null, topTenArr);
         });
     },
-    /*
+    /**
      * @desc 2.根据上一步中的十大链接,读取第一页内容，获取页数,并将其保存到数据库.
      * @author BuptStEve
      * @param {Array}    topTenArr
@@ -84,7 +84,7 @@ function updateTopTen(cookie, next) {
         next(null, articlesPage);
       });
     },
-    /*
+    /**
      * @desc 3.获取其中的主贴内容和 comments,最后保存进数据库中.
      * @author BuptStEve
      * @param {Array}    articlesPage
@@ -108,7 +108,7 @@ function updateTopTen(cookie, next) {
             if (err) { return callback(err); }
 
             callback(null);
-        });
+          });
         }, function(err) {
           if (err) { return callback(err); }
 
