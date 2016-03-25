@@ -3,6 +3,8 @@
 
 主要目的是为了给 [byrs-news][4] 提供数据.
 
+![时间](http://7xlxvm.com1.z0.glb.clouddn.com/byr-crawler.jpg)
+
 ## 模块构成
 * NodeJs 爬虫
 * MongoDB 存储数据, Mongoose 进行二者的交互
