@@ -1,17 +1,21 @@
-node_modules
+# try
 tmp
+
+# os
 .DS_Store
 
+# Logs
+logs
 *.log
+npm-debug.log*
 
-sftp-config.json
+# Dependency directory
+node_modules
 
-crawlers/board.js
-crawlers/err_article.js
-crawlers/section.js
-crawlers/article.js
+# dist // compiled js
+dist
 
-models/section.js
-models/board.js
-
-main.js
+# config
+sftp-cofnig.json
+src/config/*
+!src/config/index.js
