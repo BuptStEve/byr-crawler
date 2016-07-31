@@ -1,34 +1,34 @@
 /*
-* @Author: BuptStEve
-* @Date:   2016-01-18 11:06:15
-* @Last Modified by:   BuptStEve
-BuptStEve
-* @Last Modified time: 2016-03-07 14:41:58
-*/
+ * @Author: BuptStEve
+ * @Date:   2016-01-18 11:06:15
+ * @Last modified by:   steve
+ * @Last modified time: 2016-Jul-31 21:17:40
+ */
 
-'use strict';
+ /* eslint no-console: ["error", { allow: ["warn", "error", "time", "timeEnd", "log"] }] */
+ /* eslint no-shadow: ["error", { "allow": ["cookie", "next", "err", "callback"] }] */
 
-var async    = require('async'),
-    mongoose = require('mongoose'),
-    cron     = require('node-cron');
+const cron = require('node-cron');
+const mongoose = require('mongoose');
 
-var Cookie  = require('./crawlers/cookie.js'),
-    Config  = require('./config.js'),
-    TopTen  = require('./crawlers/top_ten.js');
+const Cookie = require('./crawlers/cookie.js');
+const Config = require('./config.js');
+const TopTen = require('./crawlers/top_ten.js');
 
 mongoose.connect(Config.db);
 
-cron.schedule('*/10 * * * *', function(){
+cron.schedule('*/10 * * * *', () => {
   // 10分钟更新一次
-  Cookie.getCookie(function(err, cookie) {
-    if (err) { return console.log(err); }
+  Cookie.getCookie((err, cookie) => {
+    if (err) return console.log(err);
 
     console.log(cookie);
-    TopTen.updateTopTen(cookie, function(err) {
-      if (err) { console.log(err); }
+    TopTen.updateTopTen(cookie, err => {
+      if (err) return console.log(err);
 
-      console.log('done');
+      return console.log('done');
     });
+
+    return undefined;
   });
 });
-
