@@ -2,7 +2,7 @@
  * @Author: BuptStEve
  * @Date:   2016-01-21 15:21:31
  * @Last modified by:   steve
- * @Last modified time: 2016-Jul-31 21:19:36
+ * @Last modified time: 2016-Jul-31 23:46:38
  */
 
 /* eslint no-console: ["error", { allow: ["warn", "error", "time", "timeEnd", "log"] }] */
@@ -13,7 +13,7 @@ const async = require('async');
 const cheerio = require('cheerio');
 const superagent = require('superagent');
 
-const Config = require('../config.js');
+const Config = require('../config/config.js');
 const Article = require('./article.js');
 const ArticleModel = require('../models/article.js');
 const CommentModel = require('../models/comment.js');

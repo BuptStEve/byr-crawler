@@ -2,12 +2,15 @@
  * @Author: BuptStEve
  * @Date:   2016-02-05 16:45:27
  * @Last modified by:   steve
- * @Last modified time: 2016-Jul-31 21:20:01
+ * @Last modified time: 2016-Jul-31 23:46:17
  */
 
+// const url = require('url');
+// const async = require('async');
+// const cheerio = require('cheerio');
 const superagent = require('superagent');
 
-const Config = require('../config.js');
+const Config = require('../config/config.js');
 
 /**
  * @desc 获取 cookie

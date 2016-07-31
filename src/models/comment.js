@@ -2,10 +2,11 @@
  * @Author: BuptStEve
  * @Date:   2016-01-18 10:59:48
  * @Last modified by:   steve
- * @Last modified time: 2016-Jul-31 21:18:46
+ * @Last modified time: 2016-Jul-31 00:40:37
  */
 
 const mongoose = require('mongoose');
+// const article = require('./article.js');
 
 const Schema = mongoose.Schema;
 
