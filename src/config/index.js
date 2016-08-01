@@ -2,33 +2,66 @@
  * @Author: steve
  * @Date:   2016-Jul-31 23:34:30
  * @Last modified by:   steve
- * @Last modified time: 2016-Jul-31 23:37:19
+ * @Last modified time: 2016-Aug-01 23:26:36
  */
 
 import fs from 'fs';
-import _, { isPlainObject, defaultsDeep } from 'lodash';
+import { isPlainObject, defaultsDeep } from 'lodash';
+
 import defaultCfg from './default';
 
-/* eslint no-console: ["error", { allow: ["log", "error"] }] */
+/**
+ * @desc 使用 Promise 包装原生 fs.readdir，为了使用 await
+ * @author BuptStEve
+ * @param {String} path 文件夹路径
+ */
+function readDir(path) {
+  return new Promise((resolve, reject) => {
+    fs.readdir(path, (err, files) => {
+      if (err) {
+        reject(err);
+        return;
+      }
 
-const cfgs = [];
+      resolve(files);
+    });
+  });
+}
 
-fs.readdirSync(__dirname).forEach(file => {
-  if (file === 'index.js' || /.*\.js\.map/.test(file)) return;
+/**
+ * @desc 读取本文件夹下的所有配置文件，返回
+ * @author BuptStEve
+ * @return {Object} 配置对象
+ */
+async function getCfg() {
+  const cfgs = [];
+  const excludeFiles = ['index.js', 'default.js'];
 
   try {
-    const cfg = require(`./${file}`); // eslint-disable-line global-require
+    const files = await readDir(__dirname);
 
-    if (isPlainObject(cfg)) {
-      cfgs.push(cfg);
-    }
+    files.forEach(file => {
+      if (excludeFiles.includes(file)) return;
+
+      try {
+        const cfg = require(`./${file}`); // eslint-disable-line global-require
+
+        if (isPlainObject(cfg)) {
+          cfgs.push(cfg);
+        }
+      } catch (e) {
+        throw e;
+      }
+
+      return;
+    });
   } catch (e) {
     throw e;
   }
 
-  return;
-});
+  cfgs.push(defaultCfg); // 默认配置最后放入
 
-cfgs.push(defaultCfg);
+  return cfgs.reduce((a, b) => defaultsDeep(a, b), {});
+}
 
-export default defaultsDeep.apply(_, cfgs);
+export default getCfg;
