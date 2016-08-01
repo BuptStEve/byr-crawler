@@ -2,10 +2,10 @@
  * @Author: BuptStEve
  * @Date:   2016-01-18 10:59:48
  * @Last modified by:   steve
- * @Last modified time: 2016-Jul-31 00:40:10
+ * @Last modified time: 2016-Aug-01 23:39:19
  */
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
@@ -23,4 +23,4 @@ const BoardSchema = new Schema({
   },
 });
 
-module.exports = mongoose.model('Board', BoardSchema);
+export default mongoose.model('Board', BoardSchema);

@@ -4,7 +4,7 @@
   "description": "一个针对[北邮人论坛移动版](http://m.byr.cn)的爬虫,",
   "main": "index.js",
   "scripts": {
-    "start": "babel-node src/main.js"
+    "start": "babel-node src/index.js"
   },
   "keywords": [
     "byr",
@@ -13,21 +13,25 @@
   "author": "BuptStEve",
   "license": "ISC",
   "dependencies": {
+    "babel-cli": "^6.11.4",
     "babel-runtime": "^6.11.6",
     "cheerio": "^0.19.0",
-    "lodash": "^4.0.1",
+    "chokidar": "^1.6.0",
+    "lodash": "^4.14.1",
     "mongoose": "^4.3.6",
     "node-cron": "^1.1.1",
-    "superagent": "^1.7.0"
+    "superagent": "^1.7.0",
+    "superagent-promise": "^1.1.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.11.4",
     "babel-eslint": "^6.1.2",
+    "babel-plugin-add-module-exports": "^0.2.1",
     "babel-plugin-transform-runtime": "^6.12.0",
     "babel-preset-es2015": "^6.9.0",
     "babel-preset-stage-3": "^6.11.0",
     "eslint": "^3.2.0",
     "eslint-config-airbnb-base": "^5.0.1",
+    "eslint-plugin-babel": "^3.3.0",
     "eslint-plugin-import": "^1.12.0"
   }
 }

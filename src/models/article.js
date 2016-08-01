@@ -2,10 +2,10 @@
  * @Author: BuptStEve
  * @Date:   2016-01-18 10:59:48
  * @Last modified by:   steve
- * @Last modified time: 2016-Jul-31 00:39:49
+ * @Last modified time: 2016-Aug-01 23:38:05
  */
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
@@ -33,4 +33,4 @@ const ArticleSchema = new Schema({
   },
 });
 
-module.exports = mongoose.model('Article', ArticleSchema);
+export default mongoose.model('Article', ArticleSchema);
