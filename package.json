@@ -4,7 +4,8 @@
   "description": "一个针对[北邮人论坛移动版](http://m.byr.cn)的爬虫,",
   "main": "index.js",
   "scripts": {
-    "start": "babel-node src/index.js"
+    "start": "babel-node src/index.js",
+    "try": "babel-node tmp/test.js"
   },
   "keywords": [
     "byr",

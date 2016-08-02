@@ -1,3 +1,12 @@
 {
-  "extends": "airbnb-base"
+  "parser": "babel-eslint",
+  "extends": "airbnb-base",
+  "rules": {
+    "generator-star-spacing": 0,
+    "babel/generator-star-spacing": 1,
+    "no-console": ["error", { allow: ["log", "warn", "error"] }],
+  },
+  "plugins": [
+    "babel"
+  ]
 }

@@ -1,7 +1,9 @@
 {
   "presets": ["es2015", "stage-3"],
   "plugins": [
-    ["transform-runtime", {
+    "add-module-exports",
+    [
+      "transform-runtime", {
       "polyfill": false,
       "regenerator": true
     }]
