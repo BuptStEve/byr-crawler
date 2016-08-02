@@ -19,3 +19,4 @@ dist
 sftp-cofnig.json
 src/config/*
 !src/config/index.js
+!src/config/default.js
