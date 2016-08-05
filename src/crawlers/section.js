@@ -2,122 +2,20 @@
  * @Author: BuptStEve
  * @Date:   2016-01-21 15:21:31
  * @Last modified by:   steve
- * @Last modified time: 2016-Jul-31 01:55:53
+ * @Last modified time: 2016-Aug-06 03:57:29
  */
 
-/* eslint no-console: ["error", { allow: ["warn", "error", "time", "timeEnd", "log"] }] */
 /* eslint no-shadow: ["error", { "allow": ["cookie", "next", "err", "callback"] }] */
 
-const url = require('url');
-const async = require('async');
-const cheerio = require('cheerio');
-const superagent = require('superagent');
+import url from 'url';
+import cheerio from 'cheerio';
+import superagent from 'superagent';
 
-const Config = require('../config.js');
-const BoardModel = require('../models/board.js');
-const SectionModel = require('../models/section.js');
+import mapLimit from '../utils/map_limit.js';
+import BoardModel from '../models/board.js';
+import SectionModel from '../models/section.js';
 
-/**
- * @desc 根据 sectionUrl 得到分区标题和分区下的版面或小分区,分别将其保存在 subSections/boards 中
- * @author BuptStEve
- * @param {String}   sectionUrl
- * @param {String}   cookie
- * @param {Callback} next
- */
-function getOneSection(sectionUrl, cookie, next) {
-  superagent
-    .get(url.resolve(Config.url.index, sectionUrl))
-    .set('Cookie', cookie)
-    .end((err, sres) => {
-      if (err) return next(err);
-
-      const $ = cheerio.load(sres.text);
-      const title = $('#wraper div.menu').eq(0).text().slice(4); // 获取标题,去掉「讨论区-」
-      // -- wrapper 拼错了喂！！！--
-
-      console.log(`${title}: ${url.resolve(Config.url.index, sectionUrl)}`);
-
-      const tmpSectionUrls = []; // 小分区链接
-      const tmpBoardUrls = []; // 版面链接
-      const tmpBoards = []; // 版面:链接+标题
-
-      $('#m_main ul.slist li a').each((idx, elet) => {
-        const $elet = $(elet);
-        const href = $elet.attr('href');
-        const subTitle = $elet.text();
-        const hrefPart = href.split('/')[1];
-
-        if (hrefPart === 'section') {
-          // 匹配到了小分区
-          tmpSectionUrls.push(href);
-        } else if (hrefPart === 'board') {
-          // 匹配到了 board
-          tmpBoardUrls.push(href);
-
-          tmpBoards.push({
-            url: href,
-            title: subTitle,
-          });
-        } else {
-          // 错误处理
-          next(`WTF! Please check ${title}: ${url.resolve(Config.url.index, sectionUrl)}`);
-        }
-      });
-
-      async.parallel([
-        callback => {
-          // 更新 Section 文档
-          SectionModel.findOneAndUpdate({
-            url: sectionUrl,
-          }, {
-            $set: {
-              title,
-            },
-            $addToSet: {
-              subSections: {
-                $each: tmpSectionUrls,
-              },
-              boards: {
-                $each: tmpBoardUrls,
-              },
-            },
-          }, Config.FOAU_OPT, (err) => {
-            if (err) return callback(err);
-
-            return callback(null);
-          });
-        },
-        callback => {
-          // 更新 Board 文档
-          async.each(tmpBoards, (board, callback) => {
-            BoardModel.findOneAndUpdate({
-              url: board.url,
-            }, {
-              $set: {
-                url: board.url,
-                title: board.title,
-              },
-            }, Config.FOAU_OPT, (err) => {
-              if (err) return callback(err);
-
-              return callback(null);
-            });
-          }, err => {
-            if (err) return callback(err);
-
-            return callback(null);
-          });
-        },
-      ], err => {
-        if (err) return next(err);
-
-        return next(null, tmpSectionUrls);
-      });
-
-      return undefined;
-    });
-}
-
+const CONCURRENT_NUM = 2;
 
 /*
  * @desc step1 爬取分区下的小分区和版面(updateSections)
@@ -125,73 +23,145 @@ function getOneSection(sectionUrl, cookie, next) {
  * 将大分区下有版面(board)或小分区(subSection,例如[社团组织][2])保存在数据库 Section 文档中,并生成 Board 文档.
  * 获取小分区下的版面内容,保存到 Board 文档中.
  * @author BuptStEve
+ * @param {Object} cfg
  */
-function updateSections(cookie, next) {
+async function updateSections(cfg) {
   console.time('updateSections');
-  async.waterfall([
-    /*
-     * @desc 1.生成顶级分区的 url
-     * @author BuptStEve
-     */
-    function generateTopSectionUrls(next) {
-      const sectionUrls = [];
 
-      for (let i = Config.section.SECTION_START; i <= Config.section.SECTION_END; i += 1) {
-        sectionUrls.push(`/section/${i.toString()}`);
-      }
+  /* -- 1.生成顶级分区的 url -- */
+  const sectionUrls = [],
+    START = cfg.section.SECTION_START,
+    END = cfg.section.SECTION_END;
 
-      next(null, sectionUrls);
-    },
-    /*
-     * @desc 2.获取大分区下的 subSections 和 boards
-     * @author BuptStEve
-     */
-    function getTopSections(sectionUrls, next) {
-      let allSubSectionUrls = []; // 所有小分区
+  for (let i = START; i <= END; i++) {
+    sectionUrls.push(`/section/${i.toString()}`);
+  }
 
-      async.eachLimit(sectionUrls, 2, (sectionUrl, callback) => {
-        getOneSection(sectionUrl, cookie, (err, subSectionUrls) => {
-          if (err) return next(err);
+  /* -- 2.获取大分区下的 subSections 和 boards -- */
+  let allSubSectionUrls = []; // 所有小分区
 
-          allSubSectionUrls = allSubSectionUrls.concat(subSectionUrls);
-          return callback(null);
-        });
-      }, err => {
-        if (err) {
-          return next(err);
-        }
 
-        return next(null, allSubSectionUrls);
-      });
-    },
-    /*
-     * @desc 3.获取 subSections 下的 boards(获取了全部的 boards)
-     * @author BuptStEve
-     */
-    function getSubSections(subSectionUrls, next) {
-      async.eachLimit(subSectionUrls, 2, (subSectionUrl, callback) => {
-        getOneSection(subSectionUrl, cookie, err => {
-          if (err) return next(err);
+  await mapLimit(sectionUrls, CONCURRENT_NUM, async (sectionUrl) => {
+    const subSectionUrls = await getOneSection(sectionUrl, cfg);
 
-          return callback(null);
-        });
-      }, err => {
-        if (err) {
-          return next(err);
-        }
-
-        return next(null, 'done');
-      });
-    },
-  ], (err, results) => {
-    if (err) return next(`updateSections: ${err}`);
-
-    console.log('results: ', results);
-    console.timeEnd('updateSections');
-    return next(null);
+    allSubSectionUrls = allSubSectionUrls.concat(subSectionUrls);
   });
+
+  /* -- 3.获取 subSections 下的 boards(获取了全部的 boards) -- */
+  await mapLimit(allSubSectionUrls, CONCURRENT_NUM, async (subSectionUrl) => {
+    await getOneSection(subSectionUrl, cfg);
+  });
+
+  console.timeEnd('updateSections');
 }
 
-module.exports = {
-  updateSections,
-};
+
+/**
+ * @desc 根据 sectionUrl 得到分区标题和分区下的版面或小分区,分别将其保存在 subSections/boards 中
+ * @author BuptStEve
+ * @param {String}   sectionUrl 分区的 url
+ * @param {Object}   cfg 配置
+ */
+async function getOneSection(sectionUrl, cfg) {
+  const realUrl = url.resolve(cfg.url.index, sectionUrl);
+
+  try {
+    const res = await superagent
+      .get(realUrl)
+      .set('Cookie', cfg.cookie);
+
+    const $ = cheerio.load(res.text);
+    // 获取标题,去掉「讨论区-」
+    const title = $('#wraper div.menu').eq(0).text().slice(4);
+    // -- wrapper 拼错了喂！！！--
+
+    console.log(`${title}: ${realUrl}`);
+
+    const tmpSectionUrls = []; // 小分区链接
+    const tmpBoardUrls = []; // 版面链接
+    const tmpBoards = []; // 版面:链接+标题
+    const $sectionLinks = $('#m_main ul.slist li a');
+
+    $sectionLinks.each((idx, elet) => {
+      const $elet = $(elet);
+      const href = $elet.attr('href');
+      const subTitle = $elet.text();
+      const hrefPart = href.split('/')[1];
+
+      if (hrefPart === 'section') {
+        // 匹配到了小分区
+        tmpSectionUrls.push(href);
+      } else if (hrefPart === 'board') {
+        // 匹配到了 board
+        tmpBoardUrls.push(href);
+
+        tmpBoards.push({
+          url: href,
+          title: subTitle,
+        });
+      } else {
+        // 错误处理
+        console.error(`WTF! Please check ${title}: ${realUrl}`);
+      }
+    });
+
+
+    // 更新 Section 文档
+    const sectionEntity = await SectionModel.findOne({ url: sectionUrl, }).exec();
+
+    if (!sectionEntity) {
+      await new SectionModel({
+        url: sectionUrl,
+        title,
+        subSections: tmpSectionUrls,
+        boards: tmpBoardUrls,
+      }).save();
+    } else {
+      await sectionEntity.update({
+        $set: {
+          title,
+        },
+        $addToSet: {
+          subSections: {
+            $each: tmpSectionUrls,
+          },
+          boards: {
+            $each: tmpBoardUrls,
+          },
+        },
+      }).exec();
+    }
+
+    // console.log('更新 Board 文档');
+
+    // 更新 Board 文档
+    tmpBoards.forEach(async (board) => {
+      const boardEntity = await BoardModel.findOne({ url: board.url, }).exec();
+
+      if (!boardEntity) {
+        await new BoardModel({
+          url: board.url,
+          title,
+          subSections: tmpSectionUrls,
+          boards: tmpBoardUrls,
+        }).save();
+      } else {
+        await boardEntity.update({
+          $set: {
+            url: board.url,
+            title: board.title,
+          },
+        }).exec();
+      }
+    });
+
+    return tmpSectionUrls;
+
+  } catch (e) {
+    console.error(`err: ${e.message}`);
+    throw e;
+  }
+
+}
+
+export default updateSections;
