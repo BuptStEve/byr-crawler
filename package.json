@@ -19,7 +19,7 @@
     "cheerio": "^0.19.0",
     "chokidar": "^1.6.0",
     "lodash": "^4.14.1",
-    "mongoose": "^4.3.6",
+    "mongoose": "^4.5.8",
     "node-cron": "^1.1.1",
     "superagent": "^1.7.0",
     "superagent-promise": "^1.1.0"
