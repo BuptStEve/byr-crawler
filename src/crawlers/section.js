@@ -2,7 +2,7 @@
  * @Author: BuptStEve
  * @Date:   2016-01-21 15:21:31
  * @Last modified by:   steve
- * @Last modified time: 2016-Aug-06 04:12:07
+ * @Last modified time: 2016-Aug-06 06:24:33
  */
 
 /* eslint no-shadow: ["error", { "allow": ["cookie", "next", "err", "callback"] }] */
@@ -11,7 +11,7 @@ import url from 'url';
 import cheerio from 'cheerio';
 import superagent from 'superagent';
 
-import mapLimit from '../utils/map_limit.js';
+import { mapLimit, findOneAndUpdate } from '../utils';
 import BoardModel from '../models/board.js';
 import SectionModel from '../models/section.js';
 
@@ -39,7 +39,6 @@ async function updateSections(cfg) {
 
   /* -- 2.获取大分区下的 subSections 和 boards -- */
   let allSubSectionUrls = []; // 所有小分区
-
 
   await mapLimit(sectionUrls, CONCURRENT_NUM, async (sectionUrl) => {
     const subSectionUrls = await getOneSection(sectionUrl, cfg);
@@ -105,54 +104,47 @@ async function getOneSection(sectionUrl, cfg) {
       }
     });
 
-
     // 更新 Section 文档
-    const sectionEntity = await SectionModel.findOne({ url: sectionUrl }).exec();
-
-    if (!sectionEntity) {
-      await new SectionModel({
-        url: sectionUrl,
+    const findOneOpt = { url: sectionUrl };
+    const saveOpt = {
+      url: sectionUrl,
+      title,
+      subSections: tmpSectionUrls,
+      boards: tmpBoardUrls,
+    };
+    const updateOpt = {
+      $set: {
         title,
-        subSections: tmpSectionUrls,
-        boards: tmpBoardUrls,
-      }).save();
-    } else {
-      await sectionEntity.update({
-        $set: {
-          title,
+      },
+      $addToSet: {
+        subSections: {
+          $each: tmpSectionUrls,
         },
-        $addToSet: {
-          subSections: {
-            $each: tmpSectionUrls,
-          },
-          boards: {
-            $each: tmpBoardUrls,
-          },
+        boards: {
+          $each: tmpBoardUrls,
         },
-      }).exec();
-    }
+      },
+    };
 
-    // console.log('更新 Board 文档');
+    await findOneAndUpdate(SectionModel, findOneOpt, saveOpt, updateOpt);
 
     // 更新 Board 文档
     tmpBoards.forEach(async (board) => {
-      const boardEntity = await BoardModel.findOne({ url: board.url }).exec();
-
-      if (!boardEntity) {
-        await new BoardModel({
+      const boardFindOneOpt = { url: board.url };
+      const boardSaveOpt = {
+        url: board.url,
+        title,
+        subSections: tmpSectionUrls,
+        boards: tmpBoardUrls,
+      };
+      const boardUpdateOpt = {
+        $set: {
           url: board.url,
-          title,
-          subSections: tmpSectionUrls,
-          boards: tmpBoardUrls,
-        }).save();
-      } else {
-        await boardEntity.update({
-          $set: {
-            url: board.url,
-            title: board.title,
-          },
-        }).exec();
-      }
+          title: board.title,
+        },
+      };
+
+      await findOneAndUpdate(BoardModel, boardFindOneOpt, boardSaveOpt, boardUpdateOpt);
     });
 
     return tmpSectionUrls;
