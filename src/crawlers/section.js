@@ -2,7 +2,7 @@
  * @Author: BuptStEve
  * @Date:   2016-01-21 15:21:31
  * @Last modified by:   steve
- * @Last modified time: 2016-Aug-06 03:57:29
+ * @Last modified time: 2016-Aug-06 04:12:07
  */
 
 /* eslint no-shadow: ["error", { "allow": ["cookie", "next", "err", "callback"] }] */
@@ -29,9 +29,9 @@ async function updateSections(cfg) {
   console.time('updateSections');
 
   /* -- 1.生成顶级分区的 url -- */
-  const sectionUrls = [],
-    START = cfg.section.SECTION_START,
-    END = cfg.section.SECTION_END;
+  const sectionUrls = [];
+  const START = cfg.section.SECTION_START;
+  const END = cfg.section.SECTION_END;
 
   for (let i = START; i <= END; i++) {
     sectionUrls.push(`/section/${i.toString()}`);
@@ -107,7 +107,7 @@ async function getOneSection(sectionUrl, cfg) {
 
 
     // 更新 Section 文档
-    const sectionEntity = await SectionModel.findOne({ url: sectionUrl, }).exec();
+    const sectionEntity = await SectionModel.findOne({ url: sectionUrl }).exec();
 
     if (!sectionEntity) {
       await new SectionModel({
@@ -136,7 +136,7 @@ async function getOneSection(sectionUrl, cfg) {
 
     // 更新 Board 文档
     tmpBoards.forEach(async (board) => {
-      const boardEntity = await BoardModel.findOne({ url: board.url, }).exec();
+      const boardEntity = await BoardModel.findOne({ url: board.url }).exec();
 
       if (!boardEntity) {
         await new BoardModel({
@@ -156,12 +156,10 @@ async function getOneSection(sectionUrl, cfg) {
     });
 
     return tmpSectionUrls;
-
   } catch (e) {
     console.error(`err: ${e.message}`);
     throw e;
   }
-
 }
 
 export default updateSections;

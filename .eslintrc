@@ -4,7 +4,8 @@
   "rules": {
     "generator-star-spacing": 0,
     "babel/generator-star-spacing": 1,
-    "no-console": ["error", { allow: ["log", "warn", "error"] }],
+    "no-console": ["error", { allow: ["log", "warn", "error", "time", "timeEnd"] }],
+    "no-use-before-define": ["error", { "functions": false, "classes": false }],
   },
   "plugins": [
     "babel"
