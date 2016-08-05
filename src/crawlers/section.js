@@ -2,7 +2,7 @@
  * @Author: BuptStEve
  * @Date:   2016-01-21 15:21:31
  * @Last modified by:   steve
- * @Last modified time: 2016-Aug-06 06:24:33
+ * @Last modified time: 2016-Aug-06 06:46:54
  */
 
 /* eslint no-shadow: ["error", { "allow": ["cookie", "next", "err", "callback"] }] */
@@ -23,7 +23,7 @@ const CONCURRENT_NUM = 2;
  * 将大分区下有版面(board)或小分区(subSection,例如[社团组织][2])保存在数据库 Section 文档中,并生成 Board 文档.
  * 获取小分区下的版面内容,保存到 Board 文档中.
  * @author BuptStEve
- * @param {Object} cfg
+ * @param {Object} cfg 配置
  */
 async function updateSections(cfg) {
   console.time('updateSections');
@@ -34,7 +34,7 @@ async function updateSections(cfg) {
   const END = cfg.section.SECTION_END;
 
   for (let i = START; i <= END; i++) {
-    sectionUrls.push(`/section/${i.toString()}`);
+    sectionUrls.push(`/section/${i}`);
   }
 
   /* -- 2.获取大分区下的 subSections 和 boards -- */
@@ -54,12 +54,11 @@ async function updateSections(cfg) {
   console.timeEnd('updateSections');
 }
 
-
 /**
  * @desc 根据 sectionUrl 得到分区标题和分区下的版面或小分区,分别将其保存在 subSections/boards 中
  * @author BuptStEve
- * @param {String}   sectionUrl 分区的 url
- * @param {Object}   cfg 配置
+ * @param {String} sectionUrl 分区的 url
+ * @param {Object} cfg 配置
  */
 async function getOneSection(sectionUrl, cfg) {
   const realUrl = url.resolve(cfg.url.index, sectionUrl);
@@ -149,7 +148,6 @@ async function getOneSection(sectionUrl, cfg) {
 
     return tmpSectionUrls;
   } catch (e) {
-    console.error(`err: ${e.message}`);
     throw e;
   }
 }
