@@ -2,40 +2,31 @@
  * @Author: BuptStEve
  * @Date:   2016-02-05 16:45:27
  * @Last modified by:   steve
- * @Last modified time: 2016-Jul-31 23:46:17
+ * @Last modified time: 2016-Aug-04 18:15:55
  */
 
-// const url = require('url');
-// const async = require('async');
-// const cheerio = require('cheerio');
-const superagent = require('superagent');
-
-const Config = require('../config/config.js');
+import superagent from 'superagent';
 
 /**
  * @desc 获取 cookie
  * @author BuptStEve
+ * @return {Object} cfg
  * @return {String} cookie
  */
-function getCookie(next) {
-  superagent
-    .post(Config.url.login)
-    .type('form')
-    .send(Config.auth)
-    .redirects(0)
-    .end((err, sres) => {
-      // 302 跳转
-      // if (err) { console.log(err); }
+async function getCookie(cfg) {
+  let raw;
 
-      /* eslint max-len: ["error", 120] */
-      const rawCookies = sres.headers['set-cookie'];
-      const cookie = `${rawCookies[3].split(';')[0]}; ${rawCookies[4].split(';')[0]}; ${rawCookies[5].split(';')[0]}`;
+  try {
+    await superagent
+      .post(cfg.url.login)
+      .type('form')
+      .send(cfg.auth)
+      .redirects(0);
+  } catch (e) {
+    raw = e.response.headers['set-cookie'];
+  }
 
-      // console.log(cookie);
-      next(null, cookie);
-    });
+  return `${raw[3].split(';')[0]}; ${raw[4].split(';')[0]}; ${raw[5].split(';')[0]}`;
 }
 
-module.exports = {
-  getCookie,
-};
+export default getCookie;
